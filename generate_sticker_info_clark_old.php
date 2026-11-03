@@ -1,0 +1,529 @@
+<?php
+// required headers
+header("Access-Control-Allow-Origin: *");
+// header('Access-Control-Allow-Origin: http://rapidx', true);
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"); // Specify allowed HTTP methods
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once('./PPSTicketing-OOP.php');
+session_start();    
+
+// $data = file_get_contents("php://input");
+$data = json_decode(file_get_contents("php://input"), true);
+
+$LastUpdate 		= date("Y-m-d H:i s");
+$TransactionDate 	= date("Y-m-d");
+$Username 			= isset($data['username']) ? $data['username'] : "";
+$LotNo 			    = isset($data['cmbLotNumberSATO']) ? $data['cmbLotNumberSATO'] : "";
+$OrderQty 			= PPST::getInstance()->computeTotalShipmentQty($data['txtPoNumSATO']);
+$query 				= PPST::getInstance()->loadPRInformation($data['txtPoNumSATO']);
+$packedby			= isset($data['cmbPackby']) ? $data['cmbPackby'] : "";
+
+// $row = mysqli_fetch_array($query);
+// print_r($packedby);
+// return;
+/// Process and trigger function
+// if(empty($data["num_stickers"]) && empty($data["package_count"])){
+
+	$poNum              = $data["txtPoNum"];
+	$DateComment        = $data["date"];
+	$department         = "department";
+	
+	$DeliveryPlaceName = $data["selDeliveryPlaceName"];
+	$DeliveryDate      = $data["deliveryDate"];
+	$PackingType       = $data["cmbPackingType"];
+	$Qty               = $data["txtQuantityCustomized"];
+	$TotalQty          = $data["txtShipQtyCustomize"];
+	$PackageCount      = $data["txtPackageCount"];
+	$CommentsForBuyer  = "";
+	customizePrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$OrderQty,$Qty,$TotalQty,$LotNo,$CommentsForBuyer,$PackingType,$PackageCount,$DateComment,$LastUpdate,$Username,$packedby);
+
+
+    // $CommentsForVendor = "";
+    // $poNum             = $data['po_number'];
+    // $DateComment       = $data['date_comment'];
+    // $department        = "department";
+	
+	// $DeliveryPlaceName = $data['delivery_place'];
+	// $DeliveryDate      = $data["delivery_date"];
+	// $PackingType       = $data["packing_type"];
+	// $Qty               = $data["customized_qty"];
+	// $TotalQty          = $data["ship_qty_customized"];
+	// $PackageCount      = $data["package_count"];
+	// $CommentsForBuyer  = "";
+	// customizePrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$OrderQty,$Qty,$TotalQty,$LotNo,$CommentsForBuyer,$PackingType,$PackageCount,$DateComment,$LastUpdate,$Username,$packedby);
+
+    // $CommentsForVendor = "";
+    // $check_reprint = $data['check_reprint'];
+    // $poNum = $data['po_number'];
+    // $DateComment = $data['date_comment'];
+    // $department = "department";
+
+    // $DeliveryPlaceName = $data['delivery_place'];
+    // $DeliveryDate = $data["delivery_date"];
+    // $PackingType = $data["packing_type"];
+    // $Qty = $data["qty"];
+    // $QtyPerBox = $data["qty_per_box"];
+    // $CommentsForBuyer = "";
+
+    // // Assuming these variables exist
+    // normalPrinting($query, $TransactionDate, $DeliveryPlaceName, $DeliveryDate, $CommentsForVendor, $Qty, $QtyPerBox, $OrderQty, $LotNo, $CommentsForBuyer, $PackingType, $DateComment, $LastUpdate, $Username, $packedby, $check_reprint);
+// }else{
+//     echo "error";
+//     return;
+// }
+
+// // Return a success response
+// echo json_encode(["message" => "Function executed successfully"]);
+// return;
+// exit;
+
+// $data = file_get_contents("php://input");
+// $data = json_decode(file_get_contents("php://input"), true);
+
+// $keyNo = $data['key_no'];
+// $deviceName = $data['device_name'];
+// $lotNo = $data['lot_no'];
+// echo $deviceName;
+// exit;
+
+// if($_POST["txtNumOfStickers"] == "" && $_POST["txtPackageCount"] == ""){	//for normal printing
+// 	$check_reprint = $_POST['txt_reprint'];
+// 	$poNum=$_POST["txtPoNum"];
+// 	$DateComment=$_POST["date"];
+// 	$department="department";
+	
+// 	$DeliveryPlaceName=$_POST["selDeliveryPlaceName"];
+// 	$DeliveryDate=$_POST["deliveryDate"];
+// 	$PackingType=$_POST["cmbPackingType"];
+// 	$Qty=$_POST["txtMaxQty"];
+// 	$QtyPerBox=$_POST["txtShipQty"];
+// 	$CommentsForBuyer	= ""; 
+// 	normalPrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$Qty,$QtyPerBox,$OrderQty,$LotNo,$CommentsForBuyer,$PackingType,$DateComment,$LastUpdate,$Username,$packedby,$check_reprint);
+// } 
+// else if($_POST["txtNumOfStickers"] != "") {	//for dynamic printing
+// 	$poNum=$_POST["txtPoNum"];
+// 	$DateComment=$_POST["date"];
+// 	$department="department";
+	
+// 	$DeliveryPlaceName=$_POST["selDeliveryPlaceName"];
+// 	$DeliveryDate=$_POST["deliveryDate"];
+// 	$PackingType=$_POST["cmbPackingType"];
+// 	$NumberOfStickers=$_POST["txtNumOfStickers"];
+// 	$CommentsForBuyer	= ""; 
+// 	dynamicPrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$OrderQty,$LotNo,$CommentsForBuyer,$PackingType,$DateComment,$NumberOfStickers,$LastUpdate,$Username,$packedby);
+// } 
+// else {		//for customize printing
+// 	$poNum=$_POST["txtPoNum"];
+// 	$DateComment=$_POST["date"];
+// 	$department="department";
+	
+// 	$DeliveryPlaceName=$_POST["selDeliveryPlaceName"];
+// 	$DeliveryDate=$_POST["deliveryDate"];
+// 	$PackingType=$_POST["cmbPackingType"];
+// 	$Qty=$_POST["txtQuantityCustomized"];
+// 	$TotalQty=$_POST["txtShipQtyCustomize"];
+// 	$PackageCount=$_POST["txtPackageCount"];
+// 	$CommentsForBuyer	= ""; 
+// 	customizePrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$OrderQty,$Qty,$TotalQty,$LotNo,$CommentsForBuyer,$PackingType,$PackageCount,$DateComment,$LastUpdate,$Username,$packedby);
+// }
+
+function normalPrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$Qty,$QtyPerBox,$OrderQty,$LotNo,$CommentsForBuyer,$PackingType,$DateComment,$LastUpdate,$Username,$packedby){	
+    // $row = mysqli_fetch_array($query);
+    // print_r($row);
+    // return;
+	if($row = mysqli_fetch_array($query)){
+		$OrderNo 			= 	$row['OrderNo'];
+		$ProductCode 		= 	$row['ItemCode'];
+		$BarCode			=	$ProductCode . "LOT" . $LotNo;
+		$ProductName 		= 	$row['ItemName'];
+		// $DrawingNo 			= 	$row['DrawingNo'];
+		// $RevNo 				= 	$row['Rev'];		
+    
+		$BuyerChecker 		= 	strtoupper($OrderNo[0].$OrderNo[1]);	//Check the OrderNo first 2 index. 
+		if($BuyerChecker == "PR" || $BuyerChecker == "AD" || $BuyerChecker == "SM" || $BuyerChecker == "TS" || $BuyerChecker == "WH" || $BuyerChecker == "CN") {
+			$Buyer = "PRICON MICROELECTRONICS INC. - (Internal)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+			// $newfile = './printjob_ts_v2/internal.dd';
+		} else if($BuyerChecker == "PP"){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (TOKAI)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+			// $newfile = './printjob_ts_v2/internal.dd';
+		}else if($BuyerChecker == "SP"){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (Internal)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+			// $newfile = './printjob_ts_v2/internal.dd';
+		}else if($BuyerChecker == "RE" && strpos($OrderNo,'PP') !== false){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (TOKAI)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+			// $newfile = './printjob_ts_v2/internal.dd';
+		}else {
+			$Buyer = "YAMAICHI ELECTRONICS CO., LTD";
+			$newfile = './printjob_ts_v2/scan/external.dd';
+			// $newfile = './printjob_ts_v2/external.dd';
+		}
+		$Vendor 			= 	"PRICON MICROELECTRONICS INC.";
+		$NumberOfStickers 	= 	ceil($QtyPerBox/$Qty);
+		
+		$DeliveryKeyNo		=	$OrderNo;
+		//VALIDATE VALUES HERE
+		// FOR STAMPING
+		
+		if(isset($_POST['check_stamping'])){
+			// echo $ProductCode;
+			$query_stamping = SDMCMS::getInstance()->select_stamping_data($ProductCode);
+			// print_r( $query_stamping );
+			// echo $query_stamping;
+			$DrawingNo = $query_stamping['drawing_no'];
+			$RevNo = $query_stamping['rev'];
+		}else{
+			$DrawingNo 			= 	$row['DrawingNo'];
+			$RevNo 				= 	$row['Rev'];	
+		}
+		
+		if($OrderQty-$Qty < 0){
+			validate(2,$OrderQty);
+		}else if($Qty == "" || $Qty == "0" || $QtyPerBox == "" || $QtyPerBox == "0"){
+			validate(3,"Shipment Quantity and Quantity per box cannot be empty!");
+		}else{
+            $check = PPST::getInstance()->checkTicketingTransaction($TransactionDate,$OrderNo,$LotNo,$OrderQty,$QtyPerBox,$LastUpdate,$Username);
+            if($check != "OK") {	//the total shipment quantity is greater than actual quantity
+                validate(4,$check);
+            } else {
+                //save the transaction to the database and ready for print na :)
+                ini_set('display_errors', 1); 
+                error_reporting(E_ALL);
+
+                $filename = "./printjob_ts_v2/data/data.txt";
+                if(!file_exists($filename)){
+                    echo "ERROR: the data text file is missing in the printjob_ts_v2/data/ directory";
+                } else{
+                    echo "DONE PRINTING";
+                }
+                echo "<br>";
+
+                $myfile = fopen($filename, "w") or die("Unable to open file!");
+                $tempQtyPerBox = $QtyPerBox;
+                $tempQty = 0;
+                $data = "";
+                $data  = "Buyer;Vendor;DeliverPlaceName;DeliveryDate;DeliveryKeyNo;CommentsForVendor;ProductCode;BarCode;ProductName;DrawingNo;RevNo;Qty;LotNo;CommentsForBuyer;PackageCount;PackingType;packedby;preshipment;\n";
+                $save_trigger = $NumberOfStickers - 1;
+                $qty_all = 0;
+                
+                for($i = 0; $i < $NumberOfStickers; $i++) {
+                    $TotalQty = $tempQtyPerBox - $tempQty;
+                    if($Qty > $TotalQty) {
+                        //echo "[".$Qty = $tempQtyPerBox - $tempQty."]<br>";
+                        $Qty = $tempQtyPerBox - $tempQty;
+                    } else {
+                        $tempQty += $Qty;
+                    }
+                    //echo $Qty."<br>";
+                    $OnHand					= $OrderQty -	$Qty;
+                    $QtyDisplay 			= $Qty ."/".$QtyPerBox;
+                    $PackageCountDisplay 	= ($i + 1)."/".$NumberOfStickers;
+                    
+                    //QTY OF ALL TICKET
+                    $qty_all += $Qty;
+                    
+                    if($save_trigger == $i){
+                        //$result = PPST::getInstance()->saveTicketingTransaction($TransactionDate,$OrderNo,$LotNo,$OrderQty,$Qty,$OnHand,$DateComment,$LastUpdate,$Username);
+                        $result = PPST::getInstance()->saveTicketingTransaction($TransactionDate,$OrderNo,$LotNo,$OrderQty,$qty_all,$OnHand,$DateComment,$PackingType,$packedby,$LastUpdate,$Username);
+                    }
+                    /* if($result != 'OK') {
+                        validate(4,$result);
+                        $data = "";
+                    } else { */
+
+                        $preshipment_data ="";
+                        if($DrawingNo == ""){
+                            $DrawingNo = "-";
+                        }
+                        if($RevNo == ""){
+                            $RevNo = "-";
+                        }
+
+                        
+                        $preshipment_data = $DeliveryKeyNo.", ".$ProductCode.", ".$ProductName.", ".$LotNo.", ".$QtyPerBox.", ".$PackingType.", ".$PackageCountDisplay.", ".$DrawingNo.", ".$RevNo;
+
+                        $data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";;
+                        
+                        // if(strpos($DeliveryKeyNo, "TS-WHSE") !== false || strpos($DeliveryKeyNo, "450") !== false){
+                        // 	$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+                        // }
+                        // else{
+                        // 	$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.".".$PackageCountDisplay.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+
+                        // }
+                        
+                    /* } */
+                    
+                }
+                if($data != "") {
+                    fwrite($myfile, $data);
+                    fclose($myfile);
+
+                    $file = './printjob_ts_v2/startprint.dd';
+                    
+                    if (!copy($file, $newfile)) {
+                        echo "ERROR: the .dd trigger is missing from the printjob_ts_v2 folder";
+                    }
+                }
+            }
+		}
+		
+	} else {
+		validate(1,$poNum);
+	}	
+}
+
+function dynamicPrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$OrderQty,$LotNo,$CommentsForBuyer,$PackingType,$DateComment,$StickersValue,$LastUpdate,$Username,$packedby){	
+	if($row = mysqli_fetch_array($query)) {
+		$OrderNo 			= 	$row['OrderNo'];
+		$ProductCode 		= 	$row['ItemCode'];
+		$BarCode			=	$ProductCode . "LOT" . $LotNo;
+		$ProductName 		= 	$row['ItemName'];
+		// $DrawingNo 			= 	$row['DrawingNo'];
+		// $RevNo 				= 	$row['Rev'];		
+		$BuyerChecker 		= 	strtoupper($OrderNo[0].$OrderNo[1]);	//Check the OrderNo first 2 index. 
+		if($BuyerChecker == "PR" || $BuyerChecker == "AD" || $BuyerChecker == "SM" || $BuyerChecker == "TS" || $BuyerChecker == "WH" || $BuyerChecker == "CN") {	
+			$Buyer = "PRICON MICROELECTRONICS INC. - (Internal)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+		} else if($BuyerChecker == "PP"){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (TOKAI)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+		}else if($BuyerChecker == "SP"){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (Internal)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+		}else {
+			$Buyer = "YAMAICHI ELECTRONICS CO., LTD";
+			$newfile = './printjob_ts_v2/scan/external.dd';
+		}
+		$Vendor 			= 	"PRICON MICROELECTRONICS INC.";
+		$Stickers			=	explode(',',$StickersValue);
+		$NumberOfStickers 	= 	count($Stickers);
+		$DeliveryKeyNo		=	$OrderNo;
+		for($x = 0; $x < $NumberOfStickers; $x++) {
+			$QtyPerBox += $Stickers[$x];
+		}
+		// FOR STAMPING
+		
+		if(isset($_POST['check_stamping'])){
+			// echo $ProductCode;
+			$query_stamping = SDMCMS::getInstance()->select_stamping_data($ProductCode);
+			// print_r( $query_stamping );
+			// echo $query_stamping;
+			$DrawingNo = $query_stamping['drawing_no'];
+			$RevNo = $query_stamping['rev'];
+		}
+		else{
+			$DrawingNo 			= 	$row['DrawingNo'];
+			$RevNo 				= 	$row['Rev'];	
+		}
+		
+		//echo "TOTAL".$QtyPerBox;
+		//VALIDATE VALUES HERE
+		if($NumberOfStickers == 0) {
+			validate(3,'Invalid sticker quantity!');
+		} else {
+			$check = PPST::getInstance()->checkTicketingTransaction($TransactionDate,$OrderNo,$LotNo,$OrderQty,$QtyPerBox,$LastUpdate,$Username);
+			if($check != "OK") {	//the total shipment quantity is greater than actual quantity
+				validate(4,$check);
+			} else {
+				//ready to print
+				ini_set('display_errors', 1); 
+				error_reporting(E_ALL);
+
+				$filename = "./printjob_ts_v2/data/data.txt";
+				if(!file_exists($filename)){
+					echo "ERROR: the data text file is missing in the printjob_ts_v2/data/ directory";
+				}else{
+					echo "DONE PRINTING";
+				}
+				echo "<br>";
+
+				$myfile = fopen($filename, "w") or die("Unable to open file!");
+				$tempQtyPerBox = $QtyPerBox;
+				$tempQty = 0;
+				$data = "";
+				$data  = "Buyer;Vendor;DeliverPlaceName;DeliveryDate;DeliveryKeyNo;CommentsForVendor;ProductCode;BarCode;ProductName;DrawingNo;RevNo;Qty;LotNo;CommentsForBuyer;PackageCount;PackingType;packedby;preshipment;\n";
+				
+				for($i = 0; $i < $NumberOfStickers; $i++) {		
+					$QtyDisplay 			= 	$Stickers[$i] ."/".$QtyPerBox;
+					$PackageCountDisplay 	= 	($i + 1)."/".$NumberOfStickers;
+					$OnHand				=	$OrderQty -	$Stickers[$i];
+					$result = PPST::getInstance()->saveTicketingTransaction($TransactionDate,$OrderNo,$LotNo,$OrderQty,$Stickers[$i],$OnHand,$DateComment,$PackingType,$packedby,$LastUpdate,$Username);
+					
+					$preshipment_data ="";
+
+					if($DrawingNo == ""){
+						$DrawingNo = "-";
+					}
+					if($RevNo == ""){
+						$RevNo = "-";
+					}
+					$preshipment_data = $DeliveryKeyNo.", ".$ProductCode.", ".$ProductName.", ".$LotNo.", ".$QtyPerBox.", ".$PackingType.", ".$PackageCountDisplay.", ".$DrawingNo.", ".$RevNo;
+					
+					$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+					
+					// if(strpos($DeliveryKeyNo, "TS-WHSE") !== false || strpos($DeliveryKeyNo, "450") !== false){
+					// 	$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+					// }
+					// else{
+					// 	$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.".".$PackageCountDisplay.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+
+					// }
+					//echo $data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCountDisplay.";".$PackingType.";\n<br>";
+				}
+				
+				//$data .= $Buyer.";".$Vendor.";".$DeliverPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$Qty.";".$LotNo.";".$CommentsForBuyer.";".$PackageCount.";".$PackingType.";\n";
+				fwrite($myfile, $data);
+				fclose($myfile);
+
+				$file = './printjob_ts_v2/startprint.dd';
+				$newfile = './printjob_ts_v2/scan/startprint.dd';
+				if (!copy($file, $newfile)) {
+					echo "ERROR: the .dd trigger is missing from the printjob_ts_v2 folder";
+				}
+			}
+		}
+	} else {
+		validate(1,$poNum);
+	}	
+}
+
+function customizePrinting($query,$TransactionDate,$DeliveryPlaceName,$DeliveryDate,$CommentsForVendor,$OrderQty,$Qty,$TotalQty,$LotNo,$CommentsForBuyer,$PackingType,$PackageCount,$DateComment,$LastUpdate,$Username,$packedby){	
+	if($row = mysqli_fetch_array($query)) {
+		$OrderNo 			= 	$row['OrderNo'];
+		$ProductCode 		= 	$row['ItemCode'];
+		$BarCode			=	$ProductCode . "LOT" . $LotNo;
+		$ProductName 		= 	$row['ItemName'];
+		// $DrawingNo 			= 	$row['DrawingNo'];
+		// $RevNo 				= 	$row['Rev'];		
+		$BuyerChecker 		= 	strtoupper($OrderNo[0].$OrderNo[1]);	//Check the OrderNo first 2 index. 
+		if($BuyerChecker == "PR" || $BuyerChecker == "AD" || $BuyerChecker == "SM" || $BuyerChecker == "TS" || $BuyerChecker == "WH" || $BuyerChecker == "CN") {	
+			$Buyer = "PRICON MICROELECTRONICS INC. - (Internal)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+		} else if($BuyerChecker == "SP"){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (Internal)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+		}else if($BuyerChecker == "PP"){
+			$Buyer = "PRICON MICROELECTRONICS INC. - (TOKAI)";
+			$newfile = './printjob_ts_v2/scan/internal.dd';
+		}else {
+			$Buyer = "YAMAICHI ELECTRONICS CO., LTD";
+			$newfile = './printjob_ts_v2/scan/external.dd';
+		}
+		$Vendor 			= 	"PRICON MICROELECTRONICS INC.";
+		$Stickers			=	explode(',',$StickersValue);
+		$NumberOfStickers 	= 	count($Stickers);
+		$OnHand				=	$OrderQty -	$Qty;
+		$DeliveryKeyNo		=	$OrderNo;
+
+		// FOR STAMPING
+		
+		if(isset($_POST['check_stamping'])){
+			// echo $ProductCode;
+			$query_stamping = SDMCMS::getInstance()->select_stamping_data($ProductCode);
+			// print_r( $query_stamping );
+			// echo $query_stamping;
+			$DrawingNo = $query_stamping['drawing_no'];
+			$RevNo = $query_stamping['rev'];
+		}
+		else{
+			$DrawingNo 			= 	$row['DrawingNo'];
+			$RevNo 				= 	$row['Rev'];	
+		}
+
+		//VALIDATE VALUES HERE
+		if($NumberOfStickers == 0) {
+			validate(3,'Invalid sticker quantity!');
+		} else {
+			//ready to print
+			ini_set('display_errors', 1); 
+			error_reporting(E_ALL);
+
+			$filename = "./printjob_ts_v2/data/data.txt";
+			// $filename = "rapid\www\PPSTicketingSystem_preshipment_version\printjob_ts_v2\data\data.txt";
+			if(!file_exists($filename)){
+				echo "ERROR: the data text file is missing in the printjob_ts_v2/data/ directory";
+			}else{
+				echo "DONE PRINTING";
+				// echo $RevNo;
+			}
+			echo "<br>";
+
+			$myfile = fopen($filename, "w") or die("Unable to open file!");;
+			$data = "";
+			$data  = "Buyer;Vendor;DeliverPlaceName;DeliveryDate;DeliveryKeyNo;CommentsForVendor;ProductCode;BarCode;ProductName;DrawingNo;RevNo;Qty;LotNo;CommentsForBuyer;PackageCount;PackingType;packedby;preshipment;\n";
+				
+			$QtyDisplay 			= 	$Qty ."/".$TotalQty;
+			// $data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCount.";".$PackingType.";".$packedby.";\n";
+			$preshipment_data ="";
+			if($DrawingNo == ""){
+				$DrawingNo = "-";
+			}
+			if($RevNo == ""){
+				$RevNo = "-";
+			}
+			$preshipment_data = $DeliveryKeyNo.", ".$ProductCode.", ".$ProductName.", ".$LotNo.", ".$TotalQty.", ".$PackingType.", ".$PackageCount.", ".$DrawingNo.", ".$RevNo;
+
+			$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCount.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";;
+			// if(strpos($DeliveryKeyNo, "TS-WHSE") !== false || strpos($DeliveryKeyNo, "450") !== false){
+			// 	$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.";".$CommentsForBuyer.";".$PackageCount.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+			// }
+			// else{
+			// 	$data .= $Buyer.";".$Vendor.";".$DeliveryPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$QtyDisplay.";".$LotNo.".".$PackageCount.";".$CommentsForBuyer.";".$PackageCount.";".$PackingType.";".$packedby.";".$preshipment_data.";\n";
+
+			// }
+			//$data .= $Buyer.";".$Vendor.";".$DeliverPlaceName.";".$DeliveryDate.";".$DeliveryKeyNo.";".$CommentsForVendor.";".$ProductCode.";".$BarCode.";".$ProductName.";".$DrawingNo.";".$RevNo.";".$Qty.";".$LotNo.";".$CommentsForBuyer.";".$PackageCount.";".$PackingType.";\n";
+			fwrite($myfile, $data);
+			fclose($myfile);
+
+			$file = './printjob_ts_v2/startprint.dd';
+
+			// $newfile = './printjob_ts_v2/scan/startprint.dd';
+			if (!copy($file, $newfile)) {
+				echo "ERROR: the .dd trigger is missing from the printjob_ts_v2 folder";
+			}
+		}
+	} else {
+		validate(1,$poNum);
+	}	
+}
+function validate($Category,$passedValue){
+    echo $Category. 'Printing Failed';
+    return;
+	echo '
+	<html>
+		<head>
+			<style type="text/css">
+				body{
+					//background-color:#ED3939;
+					background-color:#3B5998;
+					color:#ffffff;
+					font-family:"Franklin Gothic Demi";
+				}
+				#wrapper{
+					margin: 0 auto;
+					width: 800px;
+					border-color:#000000;
+				}
+			</style>
+		</head>
+		<body>
+			<div id="wrapper">
+				';
+				switch($Category){
+					case 	1	:	echo '<p align="center">The Product with product number '.$passedValue.' could not be found.</p>'; break;
+					case 	2	:	echo '<p align="center">ERROR: The Original Quantity is = '.$passedValue.'</p>'; break;
+					case 	3	:	echo '<p align="center">'.$passedValue.'</p>'; break;
+					case 	4	:	echo '<p align="center">'.$passedValue.'</p>'; break;
+				}
+			echo '</div>
+		</body>
+	</html>';
+}
+
+
+?>

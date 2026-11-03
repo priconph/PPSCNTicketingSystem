@@ -1,0 +1,2 @@
+Buyer;Vendor;DeliverPlaceName;DeliveryDate;DeliveryKeyNo;CommentsForVendor;ProductCode;BarCode;ProductName;DrawingNo;RevNo;Qty;LotNo;CommentsForBuyer;PackageCount;PackingType;packedby;preshipment;
+PRICON MICROELECTRONICS INC. - (Internal);PRICON MICROELECTRONICS INC.;W102;2026-10-30;PR2610251716;;109339601;109339601LOTD260918-3-M;HC004S-04#IN-VE;B142459-001;D;263/263;D260918-3-M;;1/1;Tray;Mhalou;PR2610251716, 109339601, HC004S-04#IN-VE, D260918-3-M, 263, Tray, 1/1, B142459-001, D;

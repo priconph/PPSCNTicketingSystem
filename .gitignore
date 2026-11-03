@@ -1,0 +1,57 @@
+# Documents / spreadsheets
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.csv
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+
+# Archives
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tgz
+
+# Database dumps / local databases
+*.sql
+*.sqlite
+*.sqlite3
+*.bak
+Thumbs.db
+*.db
+
+# Media
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.psd
+*.iso
+
+# Logs / temp / uploads
+*.log
+*.tmp
+*.temp
+~$*
+logs/
+tmp/
+temp/
+uploads/
+
+# Windows shortcuts
+*.lnk
+
+# Dependencies / IDE / env
+vendor/
+node_modules/
+.idea/
+.vscode/
+.env
